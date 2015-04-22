@@ -3,7 +3,10 @@ import sqlalchemy
 import types
 import logging
 log = logging.getLogger(__name__)
-
+try:
+    xrange
+except NameError:
+    xrange = range
 
 # TODO: Move this elsewhere or hopefully deprecate it in favour of something in sqlalchemy-migrate
 from sqlalchemy.ext.compiler import compiles
@@ -131,7 +134,9 @@ def migrate_replace(e, metadata, only_tables=None, skip_tables=None):
 
 
 
-def migrate(e1, e2, metadata, convert_map=None, populate_fn=None, only_tables=None, skip_tables=None, limit=100000):
+def migrate(
+        e1, e2, metadata, convert_map=None, populate_fn=None, only_tables=None, skip_tables=None, limit=100000,
+        disable_foreign_keys=False):
     """
     :param e1: Source engine (schema reflected)
     :param e2: Target engine (schema generated from ``metadata``)
@@ -142,7 +147,12 @@ def migrate(e1, e2, metadata, convert_map=None, populate_fn=None, only_tables=No
 
     metadata.bind = e2
     metadata.create_all(bind=e2)
-
+    if disable_foreign_keys:
+        # TODO: implement for other dialects
+        if e2.dialect.name == 'mysql':
+            e2.execute('SET @@foreign_key_checks = 0')
+        elif e2.dialect.name == 'sqlite':
+            e2.execute('PRAGMA foreign_keys = OFF')
     # We create a new metadata which isn't tarnished by fancy columns of the given metadata.
     # FIXME: Should convert functions be getting new_metadata too?
     metadata_new = sqlalchemy.MetaData(bind=e2, reflect=True)

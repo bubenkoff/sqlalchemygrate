@@ -54,6 +54,10 @@ Usage
                             Example: model.metadata:MetaData
         --convert=FN        (Optional) Convert function to run data through.
                             Example: migration.v1:convert
+        --disable-foreign-keys
+                            Disable foreign key checks on target database during the migration.
+                            Helps for complex data sets in case of integrity errors.
+                            ATM implemented only for mysql and sqlite dialects.
 
 
 Function examples

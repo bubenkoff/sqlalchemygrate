@@ -1,14 +1,18 @@
 #!/usr/bin/python
+import codecs
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, find_packages
+from setuptools import setup, find_packages
 
 
-long_description = open('README.rst').read()
+with codecs.open('README.rst', encoding='utf-8') as fd:
+    long_description = fd.read()
+
+tests_require = [
+    'pytest==2.7.0',
+    'pytest-cache==1.0',
+    'mysqlclient==1.3.6',
+    'pytest-services==1.0.5'
+]
 
 setup(
     name = "sqlalchemygrate",
@@ -26,4 +30,6 @@ setup(
     # -*- Entry points: -*-
     """,
     scripts=['bin/grate'],
+    tests_require=tests_require,
+    extras_require={'test': tests_require}
 )
